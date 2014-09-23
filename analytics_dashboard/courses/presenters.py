@@ -129,7 +129,7 @@ class CourseEnrollmentPresenter(BasePresenter):
 
         # Don't bother translating for English speakers. Besides being a waste of processing resources, there are
         # no ISO 3166 translation files.
-        if locale == 'en':
+        if locale[:2] == 'en':
             return data
 
         # pylint: disable=protected-access
