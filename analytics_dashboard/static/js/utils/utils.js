@@ -38,7 +38,16 @@ define(['moment', 'underscore'], function (moment, _) {
          * @returns {string} Returns a formatted date (ex. January 31, 2014)
          */
         formatDate: function (date) {
-            return moment(date).format('MMMM D, YYYY');
+            moment.locale(window.language);
+            return moment(date).format('LL');
+        },
+
+        localizeNumber: function (value) {
+            if(value) {
+                return value.toLocaleString(window.language);
+            }
+
+            return null;
         },
 
         /**
@@ -49,6 +58,7 @@ define(['moment', 'underscore'], function (moment, _) {
         formatDisplayPercentage: function (value) {
             var display = '< 1%';
             if (value >= 0.01) {
+                // TODO Localize
                 display = (value * 100).toFixed(1) + '%';
             }
 
