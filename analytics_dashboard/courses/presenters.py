@@ -1,12 +1,19 @@
 import datetime
+import gettext
+import logging
 
 from django.conf import settings
+import pycountry
+from django.utils.translation import get_language, to_locale, trans_real
+from django.utils.translation import ugettext as _
+from waffle import switch_is_active
 
 from analyticsclient.client import Client
 import analyticsclient.constants.activity_type as AT
-from analyticsclient.constants import demographic
+from analyticsclient.constants import demographic, UNKNOWN_COUNTRY_CODE
 
-from waffle import switch_is_active
+
+logger = logging.getLogger(__name__)
 
 
 class BasePresenter(object):
@@ -114,6 +121,34 @@ class CourseEnrollmentPresenter(BasePresenter):
         summary = self._build_summary(trends)
         return summary, trends
 
+    def _translate_country_names(self, data):
+        """ Translate full country name from English to the language of the logged in user. """
+
+        language = get_language()
+        locale = to_locale(get_language())
+
+        # Don't bother translating for English speakers. Besides being a waste of processing resources, there are
+        # no ISO 3166 translation files.
+        if locale == 'en':
+            return data
+
+        # pylint: disable=protected-access
+        res = trans_real._translations.get(language, None)
+        t = gettext.translation("iso3166", pycountry.LOCALES_DIR, [locale], class_=trans_real.DjangoTranslation)
+        t.set_language(language)
+        res.merge(t)
+
+        for datum in data:
+            if datum['country']['name'] != UNKNOWN_COUNTRY_CODE:
+                country_code = datum['country']['alpha3']
+                try:
+                    country = pycountry.countries.get(alpha3=country_code)
+                    datum['country']['name'] = _(country.name)
+                except KeyError:
+                    logger.warning('Unable to locate %s in pycountry.', country_code)
+
+        return data
+
     def get_geography_data(self):
         """
         Returns a list of course geography data and the updated date (ex. 2014-1-31).
@@ -128,6 +163,9 @@ class CourseEnrollmentPresenter(BasePresenter):
             # Sort data by descending enrollment count
             api_response = sorted(api_response, key=lambda i: i['count'], reverse=True)
 
+            # Translate the country names
+            api_response = self._translate_country_names(api_response)
+
             # get the sum as a float so we can divide by it to get a percent
             total_enrollment = float(sum([datum['count'] for datum in api_response]))
 
@@ -136,7 +174,7 @@ class CourseEnrollmentPresenter(BasePresenter):
                      'countryName': datum['country']['name'],
                      'count': datum['count'],
                      'percent': datum['count'] / total_enrollment if total_enrollment > 0 else 0.0}
-                    for datum in api_response if datum['country']['name'] != 'UNKNOWN']
+                    for datum in api_response if datum['country']['name'] != UNKNOWN_COUNTRY_CODE]
 
             # Include a summary of the number of countries and the top 3 countries.
             summary = {

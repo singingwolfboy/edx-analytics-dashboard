@@ -41,7 +41,8 @@ define(['jquery', 'd3', 'datamaps', 'underscore', 'utils/utils', 'views/attribut
                     formattedData[key] = {
                         value: country.count,
                         percent: country.percent,
-                        fillKey: key
+                        fillKey: key,
+                        name: country.countryName
                     };
                 });
 
@@ -190,7 +191,7 @@ define(['jquery', 'd3', 'datamaps', 'underscore', 'utils/utils', 'views/attribut
                         popupOnHover: true,
                         popupTemplate: function (geography, data) {
                             return self.popupTemplate({
-                                name: geography.properties.name,
+                                name: data.name,
                                 value: data ? Utils.localizeNumber(data.value) : 0,
                                 percent: data ? Utils.formatDisplayPercentage(data.percent) : 0
                             });
