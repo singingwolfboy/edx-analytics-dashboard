@@ -42,8 +42,25 @@ define(['moment', 'underscore'], function (moment, _) {
             return moment(date).format('LL');
         },
 
+        /**
+         * Return the decimal separator for the current locale.
+         * @returns {string}
+         */
+        decimalSeparator: function () {
+            if (!window.decimalSeparator){
+                window.decimalSeparator = this.localizeNumber(1.1).substring(1, 2);
+            }
+
+            return window.decimalSeparator;
+        },
+
+        /**
+         * Format the given number for the current locale
+         * @param value {number}
+         * @returns {string|null}
+         */
         localizeNumber: function (value) {
-            if(value) {
+            if (value) {
                 return value.toLocaleString(window.language);
             }
 
@@ -58,8 +75,9 @@ define(['moment', 'underscore'], function (moment, _) {
         formatDisplayPercentage: function (value) {
             var display = '< 1%';
             if (value >= 0.01) {
-                // TODO Localize
-                display = (value * 100).toFixed(1) + '%';
+                var fixed = (value * 100).toFixed(1);
+                fixed = fixed.replace('.', this.decimalSeparator());
+                display = fixed + '%';
             }
 
             return display;
