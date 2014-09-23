@@ -151,7 +151,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.messages.context_processors.messages',
     'django.core.context_processors.request',
     'analytics_dashboard.context_processors.common',
-    'analytics_dashboard.context_processors.locale',
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#template-loaders

@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.utils.translation import get_language
 
 
 def common(_request):
@@ -12,11 +11,4 @@ def common(_request):
         'full_application_name': settings.FULL_APPLICATION_NAME,
         'platform_name': settings.PLATFORM_NAME,
         'application_name': settings.APPLICATION_NAME
-    }
-
-
-def locale(_request):
-    language = get_language()
-    return {
-        'LANGUAGE': language
     }
