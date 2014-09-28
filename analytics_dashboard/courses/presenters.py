@@ -1,19 +1,16 @@
 import datetime
-import gettext
 import logging
 
 from django.conf import settings
-import pycountry
-from django.utils.translation import get_language, to_locale, trans_real
-from django.utils.translation import ugettext as _
+from django_countries import countries
 from waffle import switch_is_active
-
 from analyticsclient.client import Client
 import analyticsclient.constants.activity_type as AT
 from analyticsclient.constants import demographic, UNKNOWN_COUNTRY_CODE
 
 
 logger = logging.getLogger(__name__)
+COUNTRIES = dict(countries)
 
 
 class BasePresenter(object):
@@ -124,28 +121,14 @@ class CourseEnrollmentPresenter(BasePresenter):
     def _translate_country_names(self, data):
         """ Translate full country name from English to the language of the logged in user. """
 
-        language = get_language()
-        locale = to_locale(get_language())
-
-        # Don't bother translating for English speakers. Besides being a waste of processing resources, there are
-        # no ISO 3166 translation files.
-        if locale[:2] == 'en':
-            return data
-
-        # pylint: disable=protected-access
-        res = trans_real._translations.get(language, None)
-        t = gettext.translation("iso3166", pycountry.LOCALES_DIR, [locale], class_=trans_real.DjangoTranslation)
-        t.set_language(language)
-        res.merge(t)
-
         for datum in data:
             if datum['country']['name'] != UNKNOWN_COUNTRY_CODE:
                 country_code = datum['country']['alpha3']
+
                 try:
-                    country = pycountry.countries.get(alpha3=country_code)
-                    datum['country']['name'] = _(country.name)
+                    datum['country']['name'] = unicode(COUNTRIES[datum['country']['alpha2']])
                 except KeyError:
-                    logger.warning('Unable to locate %s in pycountry.', country_code)
+                    logger.warning('Unable to locate %s in django_countries.', country_code)
 
         return data
 

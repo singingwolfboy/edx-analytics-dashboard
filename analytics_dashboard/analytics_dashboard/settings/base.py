@@ -211,7 +211,8 @@ DJANGO_APPS = (
 
     # Admin panel and documentation:
     'django.contrib.admin',
-    'waffle'
+    'waffle',
+    'django_countries',
 )
 
 # Apps specific for this project go here.
