@@ -1,5 +1,6 @@
-define(['moment', 'underscore'], function (moment, _) {
+define(['moment', 'underscore', 'utils/globalization'], function (moment, _, Globalize) {
     'use strict';
+
     var utils = {
         /**
          * Returns the attributes of a node.
@@ -43,25 +44,13 @@ define(['moment', 'underscore'], function (moment, _) {
         },
 
         /**
-         * Return the decimal separator for the current locale.
-         * @returns {string}
-         */
-        decimalSeparator: function () {
-            if (!window.decimalSeparator){
-                window.decimalSeparator = this.localizeNumber(1.1).substring(1, 2);
-            }
-
-            return window.decimalSeparator;
-        },
-
-        /**
          * Format the given number for the current locale
          * @param value {number}
          * @returns {string|null}
          */
         localizeNumber: function (value) {
             if (value) {
-                return value.toLocaleString(window.language);
+              return Globalize.formatNumber(value);
             }
 
             return null;
@@ -73,14 +62,11 @@ define(['moment', 'underscore'], function (moment, _) {
          * @returns {string}
          */
         formatDisplayPercentage: function (value) {
-            var display = '< 1%';
             if (value >= 0.01) {
-                var fixed = (value * 100).toFixed(1);
-                fixed = fixed.replace('.', this.decimalSeparator());
-                display = fixed + '%';
+              return Globalize.formatNumber(value, {style: 'percent', minimumFractionDigits: 1, maximumFractionDigits: 1});
             }
 
-            return display;
+            return '< 1%';
         }
     };
 

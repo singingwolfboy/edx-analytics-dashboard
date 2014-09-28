@@ -16,6 +16,7 @@ module.exports = function (config) {
         // list of files / patterns to load in the browser
         files: [
             {pattern: 'analytics_dashboard/static/vendor/**/*.js', included: false},
+            {pattern: 'analytics_dashboard/static/vendor/**/*.json', included: false},
             {pattern: 'analytics_dashboard/static/js/models/**/*.js', included: false},
             {pattern: 'analytics_dashboard/static/js/views/**/*.js', included: false},
             {pattern: 'analytics_dashboard/static/js/utils/**/*.js', included: false},

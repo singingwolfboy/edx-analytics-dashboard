@@ -43,7 +43,8 @@ validate_python: test.requirements test_python quality
 
 validate_js:
 	npm install
-	gulp
+	gulp test
+	gulp lint
 
 validate: validate_python validate_js
 
